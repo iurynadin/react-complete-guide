@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
-
-import './App.css';
-import Person from './Person/Person';
+import classes from './App.css';
+import Persons from '../components/Persons/Persons';
+import Cockpit from '../components/Cockpit/Cockpit';
 
 class App extends Component {
+
+    constructor(props) {
+        super(props);
+        console.log('App.js')
+    }
+
     state = {
         persons: [
             { id: 1, name: 'Max', age: 28 },
@@ -13,7 +19,25 @@ class App extends Component {
         otherState: 'some other value',
         showPersons: true
     }
+
+    static getDerivedStateFromProps(props, state) {
+        console.log('App.js getDerivedStateFromProps', props);
+        return state;
+    }
     
+    componentDidMount() {
+        console.log('App.js componentDidMount');
+    }
+
+    shouldComponentUpdate(nexProps, nextState) {
+        console.log('App.js shouldComponentUpdate');
+        return true;
+    }
+
+    componentDidUpdate() {
+        console.log('App.js componentDidUpdate');
+    }
+
     switchNameHandler = ( newName ) => {
         // console.log('Was clicked!');
         // DON'T DO THIS: this.state.persons[0].name = 'Maximilian';
@@ -34,9 +58,9 @@ class App extends Component {
             ...this.state.persons[personIndex]
         }
         person.name = event.target.value;
+        
         const persons = [...this.state.persons];
         persons[personIndex] = person;
-        console.log(persons, persons[personIndex]);
 
         this.setState({persons: persons} )
     }
@@ -53,42 +77,25 @@ class App extends Component {
     }
     
     render () {  /* everything is executed in the render method */
-        
+        console.log('App.js render');
         let personsContent = null;
         
         if ( this.state.showPersons ) {
-            personsContent = (
-                <div>
-                    {this.state.persons.map((person, index) => {
-                        return <Person 
-                            key={person.id}
-                            click={() => this.deletePersonHandler(index)}
-                            name={person.name} 
-                            age={person.age} 
-                            changed={(event) => this.nameChangedHandler(event,person.id) }
-                            />
-                    })}
-                </div>
-            );
-        }
+            personsContent = <Persons 
+                        persons={this.state.persons} 
+                        clicked={this.deletePersonHandler}
+                        changed={this.nameChangedHandler} />
 
-        const classes = [];
-        if( this.state.persons.length <= 2 ) {
-            classes.push('red');
-        }
-        if (this.state.persons.length <= 1) {
-            classes.push('bold');
         }
             
         return (
-            <div className="App">
-                <h1>Hi, I'm a React App</h1>
-                <p className={classes.join(' ')}>This is really working!</p>
-                <button
-                    alt={this.state.showPersons}
-                    onClick={this.togglePersonsHandler}>
-                        Toggle Persons
-                </button>
+            <div className={classes.App}>
+                <Cockpit 
+                    title={this.props.appTitle}
+                    showPersons={this.state.showPersons}
+                    personsLength={this.state.persons.length} 
+                    clicked={this.togglePersonsHandler}
+                    />
                 {personsContent}
             </div>
         );
